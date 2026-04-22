@@ -15,61 +15,77 @@ export const GlobalFilterProvider = ({ children }) => {
   });
 
   const loadTickets = async () => {
-    try {
-      setLoading(true);
-      const apiData = await fetchTickets();
-      console.log('Fetched tickets data:', apiData); // Debug log
+  try {
+    setLoading(true);
 
-      let ticketsArray = [];
-      if (Array.isArray(apiData)) {
-        ticketsArray = apiData;
-      } else if (apiData && Array.isArray(apiData.tickets)) {
-        ticketsArray = apiData.tickets;
-      } else {
-        console.warn('Unexpected tickets API response format:', apiData);
-        ticketsArray = [];
+    // ✅ MOCK DATA (NO API CALL)
+    const mockTickets = [
+      {
+        id: "TCK-001",
+        title: "Laptop not working",
+        description: "User unable to boot laptop",
+        type: "Hardware",
+        category: "Laptop",
+        priority: "High",
+        status: "Open",
+        department: "IT",
+        employee_name: "User A",
+        assigned_agent: "Saran",
+        sla_hours: 24,
+        resolutionHours: null,
+        slaBreached: false,
+        createdAt: new Date().toISOString(),
+        comments: [],
+        conversation: [],
+      },
+      {
+        id: "TCK-002",
+        title: "VPN Issue",
+        description: "VPN not connecting",
+        type: "Network",
+        category: "Access",
+        priority: "Medium",
+        status: "In Progress",
+        department: "IT",
+        employee_name: "User B",
+        assigned_agent: "John",
+        sla_hours: 48,
+        resolutionHours: null,
+        slaBreached: false,
+        createdAt: new Date().toISOString(),
+        comments: [],
+        conversation: [],
+      },
+      {
+        id: "TCK-003",
+        title: "Email not working",
+        description: "Outlook issue",
+        type: "Software",
+        category: "Email",
+        priority: "Low",
+        status: "Resolved",
+        department: "IT",
+        employee_name: "User C",
+        assigned_agent: "Mike",
+        sla_hours: 48,
+        resolutionHours: 5,
+        slaBreached: false,
+        createdAt: new Date().toISOString(),
+        comments: [],
+        conversation: [],
       }
+    ];
 
-      // Map API data to internal structure
-      const mappedTickets = ticketsArray.map((t, index) => {
-        if (index === 0) console.log('First raw ticket object:', t);
-        return {
-        id: t.ticket_id,
-        title: t.title,
-        description: t.description,
-        type: t.ticket_type,
-        category: t.category,
-        priority: t.priority,
-        status: t.status,
-        department: t.department,
-        employee_name: t.employee_name,
-        employee_id: t.employee_id,
-        assigned_agent: t.assigned_agent,
-        sla_hours: t.sla_hours,
-        resolutionHours: t.resolution_hours,
-        slaBreached: t.sla_breached,
-        createdAt: t.created_at ? new Date(t.created_at).toISOString() : null,
-        acknowledged_at: t.acknowledged_at ? new Date(t.acknowledged_at).toISOString() : null,
-        resolved_at: t.resolved_at ? new Date(t.resolved_at).toISOString() : null,
-        closed_at: t.closed_at ? new Date(t.closed_at).toISOString() : null,
-        created_by: t.created_by,
-        updated_by: t.updated_by,
-        // Map comments with fallbacks for different casing/naming
-        comments: t.comments || t.Comments || t.ticket_comments || [],
-        // Map conversation with fallbacks
-        conversation: t.conversation || t.Conversation || t.conversations || t.chat_history || [],
-        day: t.created_at ? new Date(t.created_at).toLocaleDateString('en-US', { weekday: 'short' }) : '', 
-      };
-    });
-      setTickets(mappedTickets);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch tickets:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setTickets(mockTickets);
+    setError(null);
+
+  } catch (err) {
+    console.error("Mock load failed:", err);
+    setError(null);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     loadTickets();

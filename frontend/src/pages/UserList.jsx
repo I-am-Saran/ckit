@@ -24,9 +24,33 @@ function UserList() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchUsers();
-        // Handle different response structures safely
-        const rawUsers = Array.isArray(data) ? data : (data.users || []);
+        // ✅ MOCK USERS (NO API)
+        const rawUsers = [
+          {
+            id: "U001",
+            username: "Saran",
+            user_email: "saran@test.com",
+            role: "Admin",
+            status: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: "U002",
+            username: "John",
+            user_email: "john@test.com",
+            role: "Editor",
+            status: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: "U003",
+            username: "Priya",
+            user_email: "priya@test.com",
+            role: "Viewer",
+            status: false,
+            created_at: new Date().toISOString()
+          }
+        ];
         
         // Map API response to component state
         const mappedUsers = rawUsers.map(u => ({
