@@ -50,6 +50,13 @@ function Header({ onLogout }) {
             Contracts
           </NavLink>
           <NavLink 
+            to="/exit-clearance" 
+            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+          >
+            <i className="bi bi-person-check"></i>
+            Exit Clearance
+          </NavLink>
+          <NavLink 
             to="/users" 
             className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
           >
@@ -139,6 +146,14 @@ function Header({ onLogout }) {
             >
               <i className="bi bi-pc-display me-2"></i>
               Assets
+            </NavLink>
+            <NavLink 
+              to="/exit-clearance" 
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''} px-2 py-2`}
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <i className="bi bi-person-check me-2"></i>
+              Exit Clearance
             </NavLink>
             <NavLink 
               to="/users" 

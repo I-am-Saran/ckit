@@ -8,6 +8,7 @@ import UserList from './pages/UserList.jsx';
 import Header from './components/layout/Header.jsx';
 import Login from './pages/Login.jsx';
 import { GlobalFilterProvider } from './context/GlobalFilterContext.jsx';
+import ExitClearance from "./pages/ExitClearance.jsx";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -59,6 +60,7 @@ function App() {
             <Route path="/tickets" element={<TicketList />} />
             <Route path="/assets" element={<AssetList />} />
             <Route path="/contracts" element={<ContractManager />} />
+            <Route path="/exit-clearance" element={<ExitClearance />} />
             <Route path="/users" element={<UserList />} />
             {/* Redirect any unknown route to dashboard if authenticated */}
             <Route path="*" element={<Navigate to="/dashboard-v2" replace />} />
