@@ -340,7 +340,7 @@ function UserList() {
             </div>
           </div>
           <div className="col-md-3">
-            <div className="approach-card" onClick={() => setRoleFilter('editor')}>
+            <div className="approach-card" onClick={() => setRoleFilter('Editor')}>
               <div className="card-icon-wrapper bg-info-subtle text-info">
                 <i className="bi bi-pencil-square"></i>
               </div>
@@ -349,7 +349,7 @@ function UserList() {
             </div>
           </div>
           <div className="col-md-3">
-            <div className="approach-card" onClick={() => setRoleFilter('viewer')}>
+            <div className="approach-card" onClick={() => setRoleFilter('Viewer')}>
               <div className="card-icon-wrapper bg-success-subtle text-success">
                 <i className="bi bi-eye"></i>
               </div>
