@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/dashboard.scss';
+import './index.css'
 
 const root = createRoot(document.getElementById('root'));
 root.render(
