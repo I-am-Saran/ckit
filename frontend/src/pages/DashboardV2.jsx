@@ -686,29 +686,43 @@ const DashboardV2 = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {data.processedTickets
-                                .filter(t => t.priority === 'Critical' || t.priority === 'High' || t.isRisk)
-                                .slice(0, 5)
-                                .map(t => (
+                        {data.processedTickets
+                            .filter(t => t.priority === 'Critical' || t.priority === 'High' || t.isRisk)
+                            .slice(0, 5).length > 0 ? (
+
+                            data.processedTickets
+                            .filter(t => t.priority === 'Critical' || t.priority === 'High' || t.isRisk)
+                            .slice(0, 5)
+                            .map(t => (
                                 <tr key={t.id}>
-                                    <td className="ps-4 fw-bold text-primary small">{t.id}</td>
-                                    <td>
-                                        <div className="text-truncate small fw-medium" style={{maxWidth: '200px'}}>{t.title}</div>
-                                    </td>
-                                    <td>
-                                        <span className={`badge rounded-pill ${t.priority === 'Critical' ? 'bg-danger' : 'bg-warning text-dark'}`}>
-                                            {t.priority}
-                                        </span>
-                                    </td>
-                                    <td className="small">{t.assigned_agent || '-'}</td>
-                                    <td>
-                                        {t.isRisk ? 
-                                            <span className="badge bg-danger bg-opacity-10 text-danger border border-danger">SLA Risk</span> : 
-                                            <span className="badge bg-success bg-opacity-10 text-success">Stable</span>
-                                        }
-                                    </td>
+                                <td className="ps-4 fw-bold text-primary small">{t.id}</td>
+                                <td>
+                                    <div className="text-truncate small fw-medium" style={{maxWidth: '200px'}}>
+                                    {t.title}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span className={`badge rounded-pill ${t.priority === 'Critical' ? 'bg-danger' : 'bg-warning text-dark'}`}>
+                                    {t.priority}
+                                    </span>
+                                </td>
+                                <td className="small">{t.assigned_agent || '-'}</td>
+                                <td>
+                                    {t.isRisk ? 
+                                    <span className="badge bg-danger bg-opacity-10 text-danger border border-danger">SLA Risk</span> : 
+                                    <span className="badge bg-success bg-opacity-10 text-success">Stable</span>
+                                    }
+                                </td>
                                 </tr>
-                            ))}
+                            ))
+
+                        ) : (
+                            <tr>
+                            <td colSpan="5" className="text-center text-muted py-4">
+                                No high priority or risk tickets
+                            </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>

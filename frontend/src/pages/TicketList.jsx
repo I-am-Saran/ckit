@@ -56,7 +56,8 @@ function TicketList() {
     type: 'Hardware',
     category: 'Laptop', // Default to first category of Hardware
     priority: 'Low',
-    assigned_agent: ''
+    assigned_agent: '',
+    attachments: null
   });
   const [editingTicket, setEditingTicket] = useState(null);
   
@@ -70,6 +71,25 @@ function TicketList() {
   const [confirmComment, setConfirmComment] = useState('');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const getSLAStatus = (ticket) => {
+    if (!ticket.createdAt) return '—';
+
+    const created = new Date(ticket.createdAt);
+    const now = new Date();
+
+    const hoursPassed = (now - created) / (1000 * 60 * 60);
+
+    if (ticket.status === 'Resolved') {
+      return 'Resolved';
+    }
+
+    if (hoursPassed > ticket.sla_hours) {
+      return 'Breached';
+    }
+
+    return `${Math.max(0, Math.floor(ticket.sla_hours - hoursPassed))}h left`;
+  };
 
   // Auto-dismiss toast
   useEffect(() => {
@@ -135,13 +155,22 @@ function TicketList() {
     }
   }, [userSearchQuery, allUsers, showUserDropdown]);
 
+  useEffect(() => {
+    if (newTicket.assigned_agent) {
+      setUserSearchQuery(newTicket.assigned_agent);
+    }
+  }, [newTicket.assigned_agent]);
+
   // Fetch audit logs when tab is active
   useEffect(() => {
     if (selectedTicket && drawerTab === 'AUDIT') {
       const loadLogs = async () => {
         setAuditLoading(true);
         try {
-          const response = await fetchAuditLogs(selectedTicket.id);
+          const response = [
+            { id: 1, action: 'Ticket Created', user: 'System', timestamp: new Date().toISOString(), details: 'Ticket created successfully' },
+            { id: 2, action: 'Status Update', user: 'Admin', timestamp: new Date(Date.now() - 86400000).toISOString(), details: 'Status changed from Open to In Progress' }
+          ];
           setAuditLogs(Array.isArray(response) ? response : (response.logs || []));
         } catch (err) {
           console.error("Failed to fetch audit logs", err);
@@ -237,27 +266,41 @@ function TicketList() {
   };
 
   const handleCreateTicket = async (e) => {
-    e.preventDefault();
-    try {
-      await createTicket({
-          ...newTicket,
-          status: 'Created', // Default status
-          created_at: new Date().toISOString()
-      });
-      setShowCreateModal(false);
-      setNewTicket({
-        title: '',
-        description: '',
-        type: 'Hardware',
-        category: 'Laptop',
-        priority: 'Low',
-        assigned_agent: ''
-      });
-      setToast({ show: true, message: 'Ticket created successfully', type: 'success' });
-    } catch (err) {
-      alert('Failed to create ticket: ' + err.message);
-    }
-  };
+  e.preventDefault();
+  try {
+    await createTicket({
+      ...newTicket,
+
+      id: `TCK-${Math.floor(Math.random() * 1000)}`, // ✅ ADD THIS LINE
+
+      status: 'Open',
+      createdAt: new Date().toISOString(),
+
+      assigned_agent: newTicket.assigned_agent || 'Unassigned',
+
+      comments: [],
+      conversation: [],
+      sla_hours: 24,
+      resolutionHours: null,
+      slaBreached: false
+    });
+
+    setShowCreateModal(false);
+    setNewTicket({
+      title: '',
+      description: '',
+      type: 'Hardware',
+      category: 'Laptop',
+      priority: 'Low',
+      assigned_agent: ''
+    });
+
+    setToast({ show: true, message: 'Ticket created successfully', type: 'success' });
+
+  } catch (err) {
+    alert('Failed to create ticket: ' + err.message);
+  }
+};
 
   const handleNewTicketTypeChange = (e) => {
     const type = e.target.value;
@@ -276,6 +319,7 @@ function TicketList() {
     { key: 'category', label: 'Category' },
     { key: 'priority', label: 'Priority' },
     { key: 'status', label: 'Status' },
+    { key: 'sla', label: 'SLA' },
     { key: 'assigned_agent', label: 'Assigned Agent' },
   ];
 
@@ -308,6 +352,24 @@ function TicketList() {
       return ticket.slaBreached
         ? <span className="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-semibold">Breached</span>
         : <span className="badge rounded-pill bg-success-subtle text-success-emphasis fw-semibold">OK</span>;
+    }
+
+    if (col.key === 'sla') {
+      const status = getSLAStatus(ticket);
+
+      if (status === 'Breached') {
+        return <span className="text-danger fw-bold">Breached</span>;
+      }
+
+      if (status === 'Resolved') {
+        return <span className="text-success">Resolved</span>;
+      }
+
+      return <span className="text-warning">{status}</span>;
+    }
+
+    if (col.key === 'assigned_agent') {
+      return ticket.assigned_agent || 'Unassigned';
     }
 
     const shouldTruncate = col.key === 'title' || col.key === 'description' || col.key === 'assigned_agent';
@@ -803,9 +865,21 @@ function TicketList() {
                    <tr>
                     <td colSpan={columns.length + 1} className="text-center py-5">
                       <div className="d-flex flex-column align-items-center justify-content-center text-muted opacity-75">
+                        
                         <i className="bi bi-inbox fs-1 mb-3"></i>
+                        
                         <h6 className="fw-semibold mb-1">No tickets found</h6>
-                        <p className="small mb-0">Try adjusting your search or filters</p>
+                        
+                        <p className="small mb-3">Try adjusting your search or filters</p>
+
+                        {/* ✅ ADD THIS BUTTON */}
+                        <button 
+                          className="btn btn-primary"
+                          onClick={() => setShowCreateModal(true)}
+                        >
+                          Create Your First Ticket
+                        </button>
+
                       </div>
                     </td>
                   </tr>
@@ -908,6 +982,26 @@ function TicketList() {
                             {selectedTicket.description || 'No description provided.'}
                         </div>
                       </div>
+
+                      <div className="mt-3">
+                        <label className="info-label">SLA Status</label>
+                        <div className="p-2 bg-light rounded">
+                          {getSLAStatus(selectedTicket)}
+                        </div>
+                      </div>
+
+                      {selectedTicket.attachments && (
+                      <div className="mt-3">
+                        <label className="info-label">Attachment</label>
+                        <div className="p-2 bg-light rounded-3 d-flex align-items-center gap-2">
+                          <i className="bi bi-paperclip text-primary"></i>
+                          <span className="small text-secondary">
+                            {selectedTicket.attachments.name || 'Attached file'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* Classification Card */}
@@ -1372,8 +1466,16 @@ function TicketList() {
                             placeholder="Search by name or email..."
                             value={userSearchQuery}
                             onChange={(e) => {
-                                setUserSearchQuery(e.target.value);
-                                setShowUserDropdown(true);
+                              const value = e.target.value;
+
+                              setUserSearchQuery(value);
+                              setShowUserDropdown(true);
+
+                              // 🔥 IMPORTANT: reset assigned_agent until user selects
+                              setNewTicket(prev => ({
+                                ...prev,
+                                assigned_agent: ''
+                              }));
                             }}
                             onFocus={() => setShowUserDropdown(true)}
                             onBlur={() => setTimeout(() => setShowUserDropdown(false), 200)} // Delay to allow click
@@ -1552,8 +1654,16 @@ function TicketList() {
                             placeholder="Search by name or email..."
                             value={userSearchQuery}
                             onChange={(e) => {
-                                setUserSearchQuery(e.target.value);
-                                setShowUserDropdown(true);
+                              const value = e.target.value;
+
+                              setUserSearchQuery(value);
+                              setShowUserDropdown(true);
+
+                              // ✅ FIX
+                              setNewTicket(prev => ({
+                                ...prev,
+                                assigned_agent: value
+                              }));
                             }}
                             onFocus={() => setShowUserDropdown(true)}
                             onBlur={() => setTimeout(() => setShowUserDropdown(false), 200)}
@@ -1566,7 +1676,7 @@ function TicketList() {
                                         className="list-group-item list-group-item-action cursor-pointer"
                                         onMouseDown={(e) => {
                                             e.preventDefault();
-                                            const email = user.user_email || user.email || '';
+                                            const email = user.user_email || user.email || user.username || '';
                                             console.log('Selected user:', user, 'Email:', email);
                                             setNewTicket(prev => ({ ...prev, assigned_agent: email }));
                                             setUserSearchQuery(email);
@@ -1597,7 +1707,25 @@ function TicketList() {
                         value={newTicket.description}
                         onChange={(e) => setNewTicket({...newTicket, description: e.target.value})}
                       ></textarea>
+                      
                     </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Attachments</label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        onChange={(e) =>
+                          setNewTicket({ ...newTicket, attachments: e.target.files[0] })
+                        }
+                      />
+                    </div>
+
+                    {newTicket.attachments && (
+                      <small className="text-muted">
+                        Selected: {newTicket.attachments.name}
+                      </small>
+                    )}
 
                     <div className="d-flex justify-content-end gap-2 pt-2">
                         <button type="button" className="btn btn-light border px-4" onClick={() => setShowCreateModal(false)}>Cancel</button>

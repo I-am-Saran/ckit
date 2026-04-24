@@ -108,6 +108,7 @@ function AssetList() {
     const created = {
         id: newId,
         ...newAsset,
+        assigned_to: 'IT Team', // ✅ DEFAULT VALUE
         value: Number(newAsset.value) || 0
     };
     

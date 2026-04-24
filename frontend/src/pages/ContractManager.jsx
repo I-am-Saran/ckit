@@ -59,6 +59,8 @@ const ContractDashboard = ({ subscriptions, vendors }) => {
     ]
   };
 
+  
+
   return (
     <div className="container-fluid p-0">
       {/* KPI Cards */}
@@ -423,6 +425,7 @@ function ContractManager() {
   const [vendors, setVendors] = useState(mockVendors);
   const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
 
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
   // Modal State
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
@@ -444,6 +447,8 @@ function ContractManager() {
         setVendors(prev => [...prev, newVendor]);
     }
     setShowVendorModal(false);
+    setToast({ show: true, message: 'Vendor saved successfully', type: 'success' });
+    setTimeout(() => setToast({ show: false }), 3000);
   };
 
   const handleEditSub = (sub) => {
@@ -459,6 +464,8 @@ function ContractManager() {
         setSubscriptions(prev => [...prev, newSub]);
     }
     setShowSubModal(false);
+    setToast({ show: true, message: 'Contract saved successfully', type: 'success' });
+    setTimeout(() => setToast({ show: false }), 3000);
   };
 
   return (
@@ -536,6 +543,31 @@ function ContractManager() {
         onClose={() => setShowSubModal(false)} 
         onSave={handleSaveSub} 
       />
+
+      {toast.show && (
+  <div
+    className={`position-fixed top-0 end-0 p-3`}
+    style={{ zIndex: 9999 }}
+  >
+    <div
+      className={`toast show align-items-center text-white ${
+        toast.type === 'success' ? 'bg-success' : 'bg-danger'
+      } border-0`}
+    >
+      <div className="d-flex">
+        <div className="toast-body">
+          {toast.message}
+        </div>
+        <button
+          type="button"
+          className="btn-close btn-close-white me-2 m-auto"
+          onClick={() => setToast({ show: false, message: '', type: '' })}
+        ></button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

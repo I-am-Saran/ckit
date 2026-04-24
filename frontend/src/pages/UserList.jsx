@@ -10,6 +10,8 @@ function UserList() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [sort, setSort] = useState({ key: 'user_id', dir: 'asc' });
+
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
   
   // Pagination State
   const [page, setPage] = useState(1);
@@ -162,6 +164,13 @@ function UserList() {
     ));
     setEditingUser(null);
     // TODO: Call API to persist changes
+    setToast({
+      show: true,
+      message: 'User updated successfully',
+      type: 'success'
+    });
+
+    setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
   };
 
   if (loading) {
@@ -573,6 +582,31 @@ function UserList() {
           )}
         </div>
       </div>
+    
+
+    {toast.show && (
+      <div
+        className={`position-fixed top-0 end-0 p-3`}
+        style={{ zIndex: 9999 }}
+      >
+        <div
+          className={`toast show align-items-center text-white ${
+            toast.type === 'success' ? 'bg-success' : 'bg-danger'
+          } border-0`}
+        >
+          <div className="d-flex">
+            <div className="toast-body">
+              {toast.message}
+            </div>
+            <button
+              type="button"
+              className="btn-close btn-close-white me-2 m-auto"
+              onClick={() => setToast({ show: false, message: '', type: '' })}
+            ></button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
 
       {/* Edit User Modal */}
