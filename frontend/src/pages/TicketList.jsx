@@ -42,12 +42,33 @@ function TicketList() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditLoading, setAuditLoading] = useState(false);
 
+  const getSLAStatus = (ticket) => {
+
+    
+    if (!ticket.createdAt) return '—';
+
+    const created = new Date(ticket.createdAt);
+    const now = new Date();
+
+    const hoursPassed = (now - created) / (1000 * 60 * 60);
+
+    if (ticket.status === 'Resolved') {
+      return 'Resolved';
+    }
+
+    if (hoursPassed > ticket.sla_hours) {
+      return 'Breached';
+    }
+
+    return `${Math.max(0, Math.floor(ticket.sla_hours - hoursPassed))}h left`;
+  };
+
   const stats = useMemo(() => {
     return {
       total: filteredTickets.length,
       open: filteredTickets.filter(t => t.status === 'Open').length,
       highPriority: filteredTickets.filter(t => t.priority === 'High').length,
-      slaBreached: filteredTickets.filter(t => t.slaBreached).length
+      slaBreached: filteredTickets.filter(t => getSLAStatus(t) === 'Breached').length
     };
   }, [filteredTickets]);
   const [newTicket, setNewTicket] = useState({
@@ -72,24 +93,7 @@ function TicketList() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  const getSLAStatus = (ticket) => {
-    if (!ticket.createdAt) return '—';
-
-    const created = new Date(ticket.createdAt);
-    const now = new Date();
-
-    const hoursPassed = (now - created) / (1000 * 60 * 60);
-
-    if (ticket.status === 'Resolved') {
-      return 'Resolved';
-    }
-
-    if (hoursPassed > ticket.sla_hours) {
-      return 'Breached';
-    }
-
-    return `${Math.max(0, Math.floor(ticket.sla_hours - hoursPassed))}h left`;
-  };
+  
 
   // Auto-dismiss toast
   useEffect(() => {
@@ -320,6 +324,7 @@ function TicketList() {
     { key: 'priority', label: 'Priority' },
     { key: 'status', label: 'Status' },
     { key: 'sla', label: 'SLA' },
+    { key: 'sla_status', label: 'SLA Status' },
     { key: 'assigned_agent', label: 'Assigned Agent' },
   ];
 
@@ -366,6 +371,36 @@ function TicketList() {
       }
 
       return <span className="text-warning">{status}</span>;
+    }
+
+    if (col.key === 'sla_status') {
+      const slaText = getSLAStatus(ticket);
+
+      let status = 'On Track';
+      let color = 'success';
+
+      if (ticket.status === 'Resolved') {
+        status = 'Completed';
+        color = 'secondary';
+      } else if (slaText === 'Breached') {
+        status = 'Breached';
+        color = 'danger';
+      } else {
+        // extract hours from "23h left"
+        const match = slaText.match(/\d+/);
+        const hoursLeft = match ? parseInt(match[0]) : 0;
+
+        if (hoursLeft <= 2) {
+          status = 'At Risk';
+          color = 'warning';
+        }
+      }
+
+      return (
+        <span className={`badge bg-${color}`}>
+          {status}
+        </span>
+      );
     }
 
     if (col.key === 'assigned_agent') {
