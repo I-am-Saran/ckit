@@ -47,7 +47,9 @@ export default function ExitClearance() {
   return (
     <div className="container py-4">
       <h3 className="mb-4 fw-bold">Exit Clearance</h3>
-
+        <p className="text-muted small">
+          HR → IT → Admin approval workflow
+        </p>
       <div className="card shadow-sm rounded-4">
         <div className="table-responsive">
           <table className="table align-middle mb-0">
@@ -111,15 +113,32 @@ export default function ExitClearance() {
                   </td>
 
                   <td>
-                    <span
-                      className={`badge ${
-                        req.status === "Completed"
-                          ? "bg-success"
-                          : "bg-warning text-dark"
-                      }`}
-                    >
-                      {req.status}
-                    </span>
+                    <div className="d-flex flex-column gap-1">
+
+                      {/* Status */}
+                      <span
+                        className={`badge ${
+                          req.status === "Completed"
+                            ? "bg-success"
+                            : "bg-warning text-dark"
+                        }`}
+                      >
+                        {req.status}
+                      </span>
+
+                      {/* Progress Bar */}
+                      <div className="progress" style={{ height: "6px" }}>
+                        <div
+                          className="progress-bar bg-success"
+                          style={{
+                            width: `${
+                              (Object.values(req.steps).filter(s => s === "Approved").length / 3) * 100
+                            }%`
+                          }}
+                        ></div>
+                      </div>
+
+                    </div>
                   </td>
                 </tr>
               ))}

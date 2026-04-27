@@ -5,6 +5,32 @@ import styles from './Header.module.scss';
 function Header({ onLogout }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
+
+  const tickets = [
+    { id: 'TCK-004', slaBreached: true },
+    { id: 'TCK-002', slaBreached: false }
+  ];
+
+  const exitRequests = [
+    { id: 'EXT-002', status: 'Completed' }
+  ];
+
+  const notifications = [
+    ...(tickets || [])
+      .filter(t => t.slaBreached)
+      .map(t => ({
+        type: 'breach',
+        text: `Ticket Breached - ${t.id}`
+      })),
+
+    ...(exitRequests || [])
+      .filter(r => r.status === 'Completed')
+      .map(r => ({
+        type: 'success',
+        text: `Exit Approved - ${r.id}`
+      }))
+  ];
 
   return (
     <header className={`${styles.header} d-flex flex-wrap align-items-center justify-content-between px-3 px-md-4 py-2`}>
@@ -63,6 +89,13 @@ function Header({ onLogout }) {
             <i className="bi bi-people"></i>
             Users
           </NavLink>
+          <NavLink 
+            to="/roles" 
+            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+          >
+            <i className="bi bi-shield-lock"></i>
+            Roles
+          </NavLink>
         </nav>
       </div>
 
@@ -72,8 +105,37 @@ function Header({ onLogout }) {
           <div className={styles.iconBtn} title="My Day">
             <i className="bi bi-calendar-check"></i>
           </div>
-          <div className={styles.iconBtn} title="Notifications">
+          <div 
+            className={styles.iconBtn + " position-relative"} 
+            title="Notifications"
+            onClick={() => setShowNotif(!showNotif)}
+            style={{ cursor: "pointer" }}
+          >
             <i className="bi bi-bell"></i>
+
+            {/* Badge */}
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {notifications.length}
+            </span>
+
+            {/* Dropdown */}
+            {showNotif && (
+              <div 
+                className="position-absolute end-0 mt-2 p-3 bg-white shadow rounded-3"
+                style={{ width: "280px", zIndex: 999 }}
+              >
+                <h6 className="fw-bold mb-2">Notifications</h6>
+
+                {notifications.map((n, i) => (
+                  <div key={i} className="small text-muted mb-2 d-flex align-items-center gap-2">
+                    {n.type === 'breach' && <span>🔴</span>}
+                    {n.type === 'risk' && <span>🟡</span>}
+                    {n.type === 'success' && <span>✅</span>}
+                    {n.text}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className={styles.iconBtn} title="Settings">
             <i className="bi bi-gear"></i>

@@ -191,6 +191,8 @@ function UserList() {
     );
   }
 
+  const currentUserRole = "Viewer";
+
   return (
     <>
     <div className="container-fluid p-4 bg-light min-vh-100">
@@ -456,8 +458,13 @@ function UserList() {
                           </button>
                           <button 
                             className="btn btn-link text-secondary p-0 action-btn rounded-circle" 
-                            onClick={() => setEditingUser(user)}
+                            onClick={() => {
+                              if (currentUserRole !== "Viewer") {
+                                setEditingUser(user);
+                              }
+                            }}
                             title="Edit User"
+                            disabled={currentUserRole === "Viewer"}
                           >
                             <i className="bi bi-pencil"></i>
                           </button>
@@ -639,6 +646,16 @@ function UserList() {
                         role: formData.get('role'),
                         status: formData.get('status') === 'true'
                       };
+                      if (currentUserRole === "Viewer") {
+                            setToast({
+                              show: true,
+                              message: "You don't have permission to edit users",
+                              type: "error"
+                            });
+                            return;
+                          }
+
+                      
                       handleUpdateUser(updated);
                     }}>
                     

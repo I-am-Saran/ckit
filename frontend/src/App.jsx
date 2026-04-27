@@ -9,6 +9,7 @@ import Header from './components/layout/Header.jsx';
 import Login from './pages/Login.jsx';
 import { GlobalFilterProvider } from './context/GlobalFilterContext.jsx';
 import ExitClearance from "./pages/ExitClearance.jsx";
+import Roles from "./pages/Roles";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -62,6 +63,7 @@ function App() {
             <Route path="/contracts" element={<ContractManager />} />
             <Route path="/exit-clearance" element={<ExitClearance />} />
             <Route path="/users" element={<UserList />} />
+            <Route path="/roles" element={<Roles />} />
             {/* Redirect any unknown route to dashboard if authenticated */}
             <Route path="*" element={<Navigate to="/dashboard-v2" replace />} />
           </Routes>
