@@ -383,16 +383,17 @@ function TicketList() {
         status = 'Completed';
         color = 'secondary';
       } else if (slaText === 'Breached') {
-        status = 'Breached';
+        status = 'L3 - Breached';
         color = 'danger';
       } else {
-        // extract hours from "23h left"
         const match = slaText.match(/\d+/);
         const hoursLeft = match ? parseInt(match[0]) : 0;
 
         if (hoursLeft <= 2) {
-          status = 'At Risk';
+          status = 'L2 - At Risk';
           color = 'warning';
+        } else {
+          status = 'L1 - On Track';
         }
       }
 
