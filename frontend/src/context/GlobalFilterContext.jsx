@@ -73,28 +73,6 @@ export const GlobalFilterProvider = ({ children }) => {
         createdAt: new Date().toISOString(),
         comments: [],
         conversation: [],
-      },
-      {
-        id: "TCK-004",
-        title: "Server Down - Urgent",
-        description: "Production server is not responding",
-        type: "Hardware",
-        category: "Server",
-        priority: "High",
-        status: "Open",
-        department: "IT",
-        employee_name: "User D",
-        assigned_agent: "Saran",
-
-        sla_hours: 24,
-        resolutionHours: null,
-        slaBreached: true,
-
-        // 🔴 THIS LINE MAKES IT BREACHED
-        createdAt: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
-
-        comments: [],
-        conversation: [],
       }
     ];
 
