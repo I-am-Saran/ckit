@@ -122,7 +122,13 @@ function Header({ onLogout }) {
             {showNotif && (
               <div 
                 className="position-absolute end-0 mt-2 p-3 bg-white shadow rounded-3"
-                style={{ width: "280px", zIndex: 999 }}
+                style={{
+                  width: "280px",
+                  zIndex: 9999,
+                  position: "absolute",
+                  right: "0",
+                  top: "40px"
+                }}
               >
                 <h6 className="fw-bold mb-2">Notifications</h6>
 
